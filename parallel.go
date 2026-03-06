@@ -10,11 +10,14 @@ func Do[T any, R any](ctx context.Context, generateTask func(context.Context) (T
 	defer cancel()
 
 	if workers <= 0 {
-		workers = runtime.GOMAXPROCS(0)
+		workers = runtime.GOMAXPROCS(0) - 1
+		if workers <= 0 {
+			workers = 1
+		}
 	}
 
 	if maxBacklog <= 0 {
-		maxBacklog = workers
+		maxBacklog = workers * 2
 	}
 
 	type taskIndex struct {
