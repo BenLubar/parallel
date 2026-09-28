@@ -98,6 +98,8 @@ func Do[T any, R any](ctx context.Context, generateTask func(context.Context) (T
 			inputIndex++
 		}
 
+		anyReady := make(chan struct{}, 1)
+
 		for {
 			select {
 			case <-ctx.Done():
@@ -116,9 +118,15 @@ func Do[T any, R any](ctx context.Context, generateTask func(context.Context) (T
 
 				backlog[r.index-outputIndex] = r
 
+				// allow inner loop to break once we've read at least one result
+				select {
+				case anyReady <- struct{}{}:
+				default:
+				}
+
 				continue
 
-			default:
+			case <-anyReady:
 			}
 
 			break
