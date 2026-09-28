@@ -78,7 +78,7 @@ func Do[T any, R any](ctx context.Context, generateTask func(context.Context) (T
 		}()
 	}
 
-	for inputIndex < outputIndex || !inputDone {
+	for inputIndex != outputIndex || !inputDone {
 		if inputIndex < outputIndex+maxBacklog && !inputDone {
 			task, done, err := generateTask(ctx)
 			if err != nil {
